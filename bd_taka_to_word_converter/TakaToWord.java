@@ -2,13 +2,11 @@ package bd_taka_to_word_converter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class TakaToWord {
-    private final String[] digits = {"zero ", "One ", "Two ", "Three ", "Four ", "Five ", "Six ", "Seven ", "Eight ", "Nine ", "Ten ", "Eleven ",
+    private final String[] digits = {"", "One ", "Two ", "Three ", "Four ", "Five ", "Six ", "Seven ", "Eight ", "Nine ", "Ten ", "Eleven ",
             "Twelve ", "Thirteen ", "Fourteen ", "Fifteen ", "Sixteen ", "Seventeen ", "Eighteen ", "Nineteen "};
-    private final String[] multiply10 = {"", "ten", "twenty ", "thirty ", "forty ", "fifty ", "sixty ", "seventy ", "eighty ", "ninety "};
+    private final String[] multiply10 = {"", "ten ", "twenty ", "thirty ", "forty ", "fifty ", "sixty ", "seventy ", "eighty ", "ninety "};
  
     private String convertUpToThousand(int number) {
         String soFar;
@@ -22,7 +20,7 @@ public class TakaToWord {
             number = number / 10;
         }
         if (number == 0) return soFar;
-        return digits[number] + " Hundred " + soFar;
+        return digits[number] + "Hundred " + soFar;
     }
  
     public String convertToWord(String taka) {
@@ -42,8 +40,12 @@ public class TakaToWord {
                 belowThousands = Integer.parseInt(taka.substring(0));
                 break;
             case 4:
+                thousands = Integer.parseInt(taka.substring(0,1));
+                belowThousands = Integer.parseInt(taka.substring(1));
+                break;
             case 5:
-                thousands = Integer.parseInt(taka);
+                thousands = Integer.parseInt(taka.substring(0,2));
+                belowThousands = Integer.parseInt(taka.substring(2));
                 break;
             case 6:
                 lakh = Integer.parseInt(taka.substring(0, 1));
@@ -66,7 +68,7 @@ public class TakaToWord {
                 croresText = "One crore ";
                 break;
             default:
-                croresText = convertUpToThousand(cror) + " crore ";
+                croresText = convertUpToThousand(cror) + "crore ";
         }
  
         String lakhsText = "";
@@ -78,7 +80,7 @@ public class TakaToWord {
                 lakhsText = "One lakh ";
                 break;
             default:
-                lakhsText = convertUpToThousand(lakh) + " lakh ";
+                lakhsText = convertUpToThousand(lakh) + "lakh ";
         }
  
         String thousandsText = "";
@@ -90,15 +92,16 @@ public class TakaToWord {
                 thousandsText = "One Thousand ";
                 break;
             default:
-                thousandsText = convertUpToThousand(thousands) + " Thousand ";
+                thousandsText = convertUpToThousand(thousands) + "Thousand ";
         }
  
         String belowThoussandText = convertUpToThousand(belowThousands);
  
         return croresText + lakhsText + thousandsText + belowThoussandText;
     }
- 
+
     public String processTaka(String taka) {
+        if(taka.equals("0")) return " zero ";
         int length = taka.length();
         String result = "";
         for (int i = 1; i <= (length / 8) + 1; i++) {
@@ -109,7 +112,7 @@ public class TakaToWord {
             } else {
                 result += convertToWord(taka.substring(0, (length % 8) ));
                 taka = taka.substring(length % 8);
-                if( (length/8) + 1 > 1) result += " crore ";
+                if( (length/8) + 1 > 1) result += "crore ";
             }
         }
         return result;
@@ -126,9 +129,16 @@ public class TakaToWord {
 
         if (splittedTaka.size() > 2 || splittedTaka.size() == 0) return "Invalid number";
 
-        String result = this.processTaka(splittedTaka.get(0)) + " taka ";
-        if(splittedTaka.size() == 2) result += this.processTaka(splittedTaka.get(1)) + " poisa";
+        String result = this.processTaka(splittedTaka.get(0)) + "taka ";
+        if(splittedTaka.size() == 2 && Integer.parseInt(splittedTaka.get(1)) != 0){
+            String afterDecimal = splittedTaka.get(1);
+            while(afterDecimal.charAt(0) == '0'){
+                result += " zero ";
+                afterDecimal = afterDecimal.substring(1);
+            }
+            result += this.processTaka(afterDecimal) + "poisa";
+        }
 
-        return result;
+        return result.replace("  ", " ");
     }
 }
