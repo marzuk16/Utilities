@@ -13,7 +13,6 @@ public class NumberFormat {
         }
 
         formattedNumber = formattedNumber.reverse();
-        if(formattedNumber.length() == 0) return "";
         return formattedNumber.charAt(0) == ',' ? formattedNumber.substring(1): formattedNumber.toString();
     }
 
